@@ -12,6 +12,8 @@
 namespace Symfony\Component\Translation;
 
 use Symfony\Component\Translation\Exception\InvalidArgumentException;
+use Symfony\Component\Translation\Formatter\IntlFormatterInterface;
+use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\TranslatorInterface as LegacyTranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -29,12 +31,15 @@ class DataCollectorTranslator implements LegacyTranslatorInterface, TranslatorIn
      */
     private $translator;
 
+    private $hasIntlFormatter;
+
     private $messages = array();
 
     /**
-     * @param TranslatorInterface $translator The translator must implement TranslatorBagInterface
+     * @param TranslatorInterface       $translator The translator must implement TranslatorBagInterface
+     * @param MessageFormatterInterface $formatter  The message formatter
      */
-    public function __construct($translator)
+    public function __construct($translator, MessageFormatterInterface $formatter)
     {
         if (!$translator instanceof LegacyTranslatorInterface && !$translator instanceof TranslatorInterface) {
             throw new \TypeError(sprintf('Argument 1 passed to %s() must be an instance of %s, %s given.', __METHOD__, TranslatorInterface::class, \is_object($translator) ? \get_class($translator) : \gettype($translator)));
@@ -44,6 +49,7 @@ class DataCollectorTranslator implements LegacyTranslatorInterface, TranslatorIn
         }
 
         $this->translator = $translator;
+        $this->hasIntlFormatter = $formatter instanceof IntlFormatterInterface;
     }
 
     /**
@@ -145,6 +151,7 @@ class DataCollectorTranslator implements LegacyTranslatorInterface, TranslatorIn
         $id = (string) $id;
         $catalogue = $this->translator->getCatalogue($locale);
         $locale = $catalogue->getLocale();
+        $domain = $this->hasIntlFormatter ? $domain.IntlFormatterInterface::DOMAIN_SUFFIX : $domain;
         if ($catalogue->defines($id, $domain)) {
             $state = self::MESSAGE_DEFINED;
         } elseif ($catalogue->has($id, $domain)) {

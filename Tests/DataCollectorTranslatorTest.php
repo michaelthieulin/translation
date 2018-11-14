@@ -13,6 +13,7 @@ namespace Symfony\Component\Translation\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\DataCollectorTranslator;
+use Symfony\Component\Translation\Formatter\MessageFormatter;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
 
@@ -111,6 +112,6 @@ class DataCollectorTranslatorTest extends TestCase
         $translator->addResource('array', array('bar' => 'bar (fr)'), 'fr');
         $translator->addResource('array', array('bar_ru' => 'bar (ru)'), 'ru');
 
-        return new DataCollectorTranslator($translator);
+        return new DataCollectorTranslator($translator, new MessageFormatter());
     }
 }
